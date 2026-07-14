@@ -1,0 +1,53 @@
+{
+  "name": "shuffle-component",
+  "version": "0.1.0",
+  "description": "Standalone shuffle text Web Component.",
+  "author": "MobiWise",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MobiWise-dev/shuffle-component.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MobiWise-dev/shuffle-component/issues"
+  },
+  "homepage": "https://github.com/MobiWise-dev/shuffle-component#readme",
+  "type": "module",
+  "main": "build/shuffle-text.cjs",
+  "module": "build/shuffle-text.module.js",
+  "types": "build/ShuffleTextElement.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/ShuffleTextElement.d.ts",
+      "import": "./build/shuffle-text.module.js",
+      "require": "./build/shuffle-text.cjs",
+      "default": "./build/shuffle-text.module.js"
+    },
+    "./browser": "./build/shuffle-text.js",
+    "./build/shuffle-text.js": "./build/shuffle-text.js",
+    "./build/shuffle-text.min.js": "./build/shuffle-text.min.js"
+  },
+  "files": [
+    "build",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "rolldown -c rolldown.config.js && npm run build:d.ts",
+    "build:d.ts": "tsc --emitDeclarationOnly --declarationDir ./build",
+    "test": "vitest run",
+    "demo": "node scripts/demo-server.mjs"
+  },
+  "keywords": [
+    "web-component",
+    "custom-element",
+    "shuffle-text",
+    "text-effect"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "27.1.0",
+    "rolldown": "1.1.5",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  }
+}

@@ -1,0 +1,1875 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MobiWise - Shuffle Component Presentation</title>
+    <!-- Import Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
+    <!-- Local component script -->
+    <script src="../build/shuffle-text.js"></script>
+
+    <!-- ShareGradient custom library integration -->
+    <script src="sharegradient.js"></script>
+
+    <style>
+      :root {
+        color-scheme: dark;
+
+        --bg-color: #0f172a; /* mwdark-700 from DepthText */
+        --panel-bg: rgba(16, 23, 42, 0.55); /* mwdark-800 backdrop */
+        --card-border: rgba(255, 255, 255, 0.08);
+        --card-border-hover: rgba(168, 85, 247, 0.35);
+        --text-color: rgba(255, 255, 255, 0.95);
+        --text-muted: #94a3b8;
+
+        --primary: oklch(0.514 0.186 270.25); /* mwblue-500 */
+        --primary-glow: rgba(0, 242, 254, 0.15);
+        --secondary: oklch(0.628 0.2 330.36); /* mwpurple-500 */
+        --secondary-glow: rgba(168, 85, 247, 0.15);
+        --accent-green: #10b981;
+        --accent-green-glow: rgba(16, 185, 129, 0.15);
+        --accent-yellow: oklch(0.872 0.124 80.69); /* mwyellow-500 */
+        --accent-red: oklch(0.628 0.2 330.36); /* custom purple-red tint */
+
+        --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-mono: "Space Mono", "Fira Code", "Courier New", monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100dvh;
+        overflow-x: hidden;
+        position: relative;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        --grid-color: oklch(1 0 0 / 0.035);
+        background-image:
+          linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px), linear-gradient(var(--grid-color) 2px, transparent 2px),
+          linear-gradient(90deg, var(--grid-color) 2px, transparent 2px);
+        background-size:
+          10px 10px,
+          10px 10px,
+          100px 100px,
+          100px 100px;
+        z-index: -2;
+        pointer-events: none;
+        background-attachment: fixed;
+      }
+
+      .share-gradient {
+        background: var(--shared-grad) fixed;
+        background-size: 800%;
+        animation: move 30s linear infinite;
+      }
+
+      .bg-glow {
+        position: fixed;
+        width: min(60vw, 650px);
+        height: min(60vw, 650px);
+        border-radius: 50%;
+        filter: blur(140px);
+        opacity: 0.2;
+        z-index: -1;
+        pointer-events: none;
+        transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      }
+      .bg-glow-1 {
+        top: -10%;
+        left: -10%;
+      }
+      .bg-glow-2 {
+        bottom: 10%;
+        right: -10%;
+      }
+      .bg-glow-3 {
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.1;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px min(5%, 64px);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--card-border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(15, 23, 42, 0.8);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        font-size: 1.4rem;
+        letter-spacing: -0.025em;
+        text-decoration: none;
+        color: var(--text-color);
+      }
+
+      .logo-text {
+        text-transform: uppercase;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--accent-yellow);
+        letter-spacing: 0.1em;
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        padding: 3px 8px;
+        border-radius: 4px;
+        background: rgba(251, 191, 36, 0.05);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+        font-family: var(--font-sans);
+      }
+
+      .btn-primary {
+        background: var(--shared-grad) fixed;
+        background-size: cover;
+        background-size: 800%;
+        animation: move 30s linear infinite;
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+        font-weight: 700;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+      }
+
+      .btn-outline {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: var(--card-border);
+        color: var(--text-color);
+      }
+
+      .btn-outline:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--text-muted);
+        transform: translateY(-1px);
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+      }
+
+      main {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 48px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 64px;
+      }
+
+      .hero {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        padding: 40px 0 20px 0;
+      }
+
+      .hero h1 {
+        font-size: clamp(3rem, 7vw, 5.2rem);
+        font-weight: 900;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+        background: linear-gradient(to right, #fff, #a3a3a3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero h1 shuffle-text {
+        display: block;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: var(--font-sans);
+        margin-top: 10px;
+        cursor: pointer;
+      }
+
+      .hero p {
+        font-size: clamp(1.1rem, 2vw, 1.3rem);
+        color: var(--text-muted);
+        max-width: 650px;
+        line-height: 1.6;
+        font-weight: 300;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 12px;
+      }
+
+      /* Svelte/MobiWise Info Badges */
+      .badge-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .mw-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--card-border);
+        border-radius: 9999px;
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
+      .badge-blue {
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.4);
+      }
+      .badge-purple {
+        border-color: var(--secondary);
+        background: rgba(168, 85, 247, 0.05);
+      }
+      .badge-yellow {
+        border-color: var(--accent-yellow);
+        background: rgba(251, 191, 36, 0.05);
+      }
+
+      .glass-panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        padding: 32px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+        transition:
+          border-color 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .glass-panel:hover {
+        border-color: var(--card-border-hover);
+      }
+
+      .panel-header {
+        margin-bottom: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .panel-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .panel-title svg {
+        color: var(--secondary);
+      }
+
+      .panel-subtitle {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+
+      /* Grid for playground */
+      .playground-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 32px;
+      }
+
+      @media (max-width: 900px) {
+        .playground-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .controls-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+      }
+
+      input[type="text"],
+      textarea,
+      select {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 12px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+      }
+
+      input[type="text"]:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+      }
+
+      .range-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      input[type="range"] {
+        flex: 1;
+        accent-color: var(--secondary);
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+      }
+
+      .range-value {
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        min-width: 60px;
+        text-align: right;
+        color: var(--accent-yellow);
+      }
+
+      .checkbox-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        user-select: none;
+        background: rgba(255, 255, 255, 0.01);
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--card-border);
+        transition: background 0.2s;
+      }
+
+      .checkbox-label:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .checkbox-label input {
+        accent-color: var(--secondary);
+        width: 18px;
+        height: 18px;
+      }
+
+      /* Preset selector */
+      .presets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 10px;
+        margin-top: 8px;
+      }
+
+      .preset-btn {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--card-border);
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        color: var(--text-muted);
+      }
+
+      .preset-btn:hover {
+        border-color: var(--secondary);
+        color: #fff;
+        background: rgba(168, 85, 247, 0.05);
+      }
+
+      .preset-btn.active {
+        background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(251, 191, 36, 0.15));
+        border-color: var(--secondary);
+        color: var(--secondary);
+        box-shadow: 0 0 10px var(--secondary-glow);
+      }
+
+      /* Preview panel */
+      .preview-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        justify-content: space-between;
+      }
+
+      .preview-box {
+        flex: 1;
+        min-height: 200px;
+        border-radius: 12px;
+        background: radial-gradient(circle at center, rgba(15, 23, 42, 0.85), rgba(7, 10, 19, 0.95));
+        border: 1px dashed rgba(255, 255, 255, 0.15);
+        display: grid;
+        place-items: center;
+        position: relative;
+        padding: 30px;
+        overflow: hidden;
+      }
+
+      .preview-text {
+        font-size: 2.2rem;
+        font-weight: 800;
+        text-align: center;
+        max-width: 100%;
+        word-break: break-word;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
+      }
+
+      .font-mono-class {
+        font-family: var(--font-mono);
+      }
+
+      .font-sans-class {
+        font-family: var(--font-sans);
+      }
+
+      .code-viewer-container {
+        position: relative;
+      }
+
+      .code-viewer {
+        background: #090d16;
+        border: 1px solid var(--card-border);
+        border-radius: 10px;
+        padding: 16px;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: #38bdf8;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+
+      .btn-copy {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--card-border);
+        color: var(--text-muted);
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+
+      .btn-copy:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border-color: var(--secondary);
+      }
+
+      /* Decryption Game Module */
+      .game-section {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .game-hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        background: rgba(0, 0, 0, 0.15);
+        padding: 16px 24px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .hud-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .hud-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
+      }
+
+      .hud-value {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--accent-yellow);
+      }
+
+      .health-nodes {
+        display: flex;
+        gap: 6px;
+      }
+
+      .health-node {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        background: var(--secondary);
+        box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+        transition: all 0.3s ease;
+      }
+
+      .health-node.lost {
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: none;
+      }
+
+      .word-display {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 40px 0;
+        min-height: 80px;
+        align-items: center;
+      }
+
+      .letter-slot {
+        width: 54px;
+        height: 64px;
+        border: 1px solid var(--card-border);
+        background: rgba(15, 23, 42, 0.7);
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        font-family: var(--font-mono);
+        font-size: 1.8rem;
+        font-weight: 700;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .letter-slot.shuffling {
+        border-color: rgba(168, 85, 247, 0.4);
+        color: var(--secondary);
+        box-shadow: 0 0 15px rgba(168, 85, 247, 0.1);
+      }
+
+      .letter-slot.guessed {
+        border-color: var(--accent-green);
+        background: rgba(16, 185, 129, 0.05);
+        color: var(--accent-green);
+        box-shadow: 0 0 20px var(--accent-green-glow);
+        transform: scale(1.05);
+      }
+
+      .keyboard {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .keyboard-row {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .key-btn {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--card-border);
+        color: var(--text-color);
+        border-radius: 6px;
+        width: clamp(24px, 7vw, 44px);
+        height: 44px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        transition: all 0.15s ease;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+      }
+
+      .key-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--text-muted);
+        transform: translateY(-2px);
+      }
+
+      .key-btn:active {
+        transform: translateY(0);
+      }
+
+      .key-btn.correct {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: var(--accent-green);
+        color: var(--accent-green);
+        pointer-events: none;
+      }
+
+      .key-btn.wrong {
+        background: rgba(168, 85, 247, 0.1);
+        border-color: var(--secondary);
+        color: var(--secondary);
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      /* Game Modals / Overlay states */
+      .game-status-overlay {
+        text-align: center;
+        padding: 30px;
+        border-radius: 12px;
+        margin-top: 20px;
+        display: none;
+        animation: fadeIn 0.4s ease forwards;
+        border: 1px solid transparent;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .game-status-overlay.success {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        background: rgba(16, 185, 129, 0.05);
+        border-color: rgba(16, 185, 129, 0.2);
+      }
+
+      .game-status-overlay.failure {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        background: rgba(168, 85, 247, 0.03);
+        border-color: rgba(168, 85, 247, 0.2);
+      }
+
+      .game-status-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .success .game-status-title {
+        color: var(--accent-green);
+        text-shadow: 0 0 15px var(--accent-green-glow);
+      }
+
+      .failure .game-status-title {
+        color: var(--secondary);
+        text-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+      }
+
+      .game-status-desc {
+        color: var(--text-muted);
+        max-width: 450px;
+        line-height: 1.5;
+        font-size: 0.95rem;
+      }
+
+      .highlight-word {
+        font-family: var(--font-mono);
+        color: var(--accent-yellow);
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      /* Cybernetic Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+      }
+
+      .dash-card {
+        background: rgba(15, 23, 42, 0.45);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .dash-card:hover {
+        border-color: var(--card-border-hover);
+        background: rgba(15, 23, 42, 0.6);
+        transform: translateY(-2px);
+      }
+
+      .dash-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .dash-label {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .dash-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent-green);
+        box-shadow: 0 0 8px var(--accent-green);
+      }
+
+      .dash-value {
+        font-family: var(--font-mono);
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .dash-progress-track {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .dash-progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 2px;
+        transition: width 0.1s linear;
+      }
+
+      /* Core Features Showcase */
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+      }
+
+      .feature-card {
+        background: rgba(255, 255, 255, 0.015);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .feature-icon-wrapper {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        background: rgba(168, 85, 247, 0.1);
+        border: 1px solid rgba(168, 85, 247, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--secondary);
+      }
+
+      .feature-card:nth-child(even) .feature-icon-wrapper {
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.2);
+        color: var(--accent-yellow);
+      }
+
+      .feature-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+
+      .feature-desc {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+
+      footer {
+        border-top: 1px solid var(--card-border);
+        padding: 32px 24px;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        background: rgba(0, 0, 0, 0.2);
+      }
+
+      footer a {
+        color: var(--secondary);
+        text-decoration: none;
+      }
+
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      @keyframes move {
+        0%,
+        100% {
+          background-position: 0 0;
+        }
+        50% {
+          background-position: 100% 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background lights -->
+    <div class="bg-glow bg-glow-1 share-gradient" id="glow1"></div>
+    <div class="bg-glow bg-glow-2 share-gradient" id="glow2"></div>
+    <div class="bg-glow bg-glow-3 share-gradient" id="glow3"></div>
+
+    <!-- Navigation Header -->
+    <header>
+      <a href="#" class="logo">
+        <span class="logo-text">Shuffle Component</span>
+      </a>
+      <div class="nav-links">
+        <a href="#playground" class="btn btn-outline btn-sm">Playground</a>
+        <a href="#game" class="btn btn-outline btn-sm">Minigame</a>
+        <a href="#dashboard" class="btn btn-outline btn-sm">System Dash</a>
+        <a href="https://github.com/MobiWise-dev" target="_blank" class="btn btn-primary btn-sm">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z"
+            />
+          </svg>
+          MobiWise
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero Presentation -->
+      <section class="hero">
+        <a
+          href="https://github.com/MobiWise-dev"
+          target="_blank"
+          class="mb-4 inline-flex items-center justify-between rounded-full bg-gray-100 px-1 py-1 pr-4 text-sm text-gray-700 hover:bg-gray-200 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+          style="display: inline-flex; align-items: center; text-decoration: none; border-radius: 999px; padding: 4px 16px 4px 4px"
+        >
+          <span style="border-radius: 999px; background: var(--secondary); padding: 4px 12px; margin-right: 12px; color: #fff; font-size: 0.75rem; font-weight: 700"> New </span>
+          <span style="font-size: 0.85rem; font-weight: 500">Shuffle Component v0.1.0 is live!</span>
+        </a>
+
+        <h1>
+          Native Web Component for
+          <shuffle-text id="hero-shuffle" class="share-gradient" autoplay respect-reduced-motion="false" duration="1100" replay-on-hover replay-on-visible>Shuffle Animations</shuffle-text>
+        </h1>
+        <p>
+          Drop the <code class="share-gradient" style="font-family: var(--font-mono); -webkit-background-clip: text; -webkit-text-fill-color: transparent">&lt;shuffle-text&gt;</code> custom element into plain HTML, ESM apps, or any frontend
+          framework. The demo pairs it with <a href="https://sharegradient.mobiwise.dev/" target="_blank" class="share-gradient" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent">ShareGradient</a> for the animated
+          color treatment.
+        </p>
+
+        <div class="badge-container">
+          <span class="mw-badge badge-blue">Web Component</span>
+          <span class="mw-badge badge-purple">&lt;shuffle-text&gt;</span>
+          <span class="mw-badge badge-yellow">Framework Agnostic</span>
+          <span class="mw-badge badge-blue">No Dependencies</span>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#playground" class="btn btn-primary">Try the Configurator</a>
+          <a href="#game" class="btn btn-outline">Play Decryptor</a>
+        </div>
+      </section>
+
+      <!-- Web Component quick start -->
+      <section class="glass-panel" id="quick-start">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title share-gradient" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              Custom Element, Plain HTML
+            </h2>
+            <div class="panel-subtitle">The library registers a native custom element. Use it as a regular HTML tag.</div>
+          </div>
+          <span class="mw-badge badge-yellow">No framework required</span>
+        </div>
+
+        <div class="code-viewer-container">
+          <pre class="code-viewer"><code>&lt;script src="shuffle-text.js"&gt;&lt;/script&gt;
+
+&lt;shuffle-text autoplay replay-on-hover duration="760"&gt;
+  Interface ready
+&lt;/shuffle-text&gt;</code></pre>
+        </div>
+      </section>
+
+      <!-- Interactive Playground (Live Configurator) -->
+      <section class="glass-panel" id="playground">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title share-gradient" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                <path d="M12 8v8"></path>
+                <path d="M8 12h8"></path>
+              </svg>
+              Live Web Component Configurator
+            </h2>
+            <div class="panel-subtitle">Tweak custom element attributes in real-time or pick a preset style.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="btn-trigger-reveal">Reveal Text</button>
+        </div>
+
+        <div class="playground-grid">
+          <!-- Left side: Controls -->
+          <div class="controls-form">
+            <div class="form-group">
+              <label for="input-text">Text content</label>
+              <textarea id="input-text" rows="2">Hello, World! Welcome to Shuffle Text.</textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Preset Designs</label>
+              <div class="presets-grid">
+                <button type="button" class="preset-btn active" data-preset="mobiwise">MobiWise</button>
+                <button type="button" class="preset-btn" data-preset="matrix">Matrix Code</button>
+                <button type="button" class="preset-btn" data-preset="cyberpunk">Glitch Alert</button>
+                <button type="button" class="preset-btn" data-preset="binary">Binary Bits</button>
+                <button type="button" class="preset-btn" data-preset="alien">Alien Runes</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-duration">Reveal Duration</label>
+              <div class="range-container">
+                <input type="range" id="input-duration" min="200" max="3000" step="50" value="800" />
+                <span class="range-value" id="val-duration">800ms</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="input-chars">Random Character Library</label>
+              <input type="text" id="input-chars" value="ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" />
+            </div>
+
+            <div class="form-group">
+              <label for="input-empty">Empty Placeholder Character</label>
+              <input type="text" id="input-empty" value="-" maxlength="5" />
+            </div>
+
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="input-autoplay" checked />
+                <div>
+                  <div style="font-weight: 600; font-size: 0.85rem">Autoplay</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted)">Trigger when visible</div>
+                </div>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="input-hover" checked />
+                <div>
+                  <div style="font-weight: 600; font-size: 0.85rem">Replay on Hover</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted)">Re-trigger on hover</div>
+                </div>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="input-visible" />
+                <div>
+                  <div style="font-weight: 600; font-size: 0.85rem">Replay on Visible</div>
+                  <div style="font-size: 0.75rem; color: var(--text-muted)">Re-trigger on re-entry</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Right side: Preview & Code -->
+          <div class="preview-container">
+            <div class="form-group" style="flex: 1; display: flex; flex-direction: column">
+              <label>Live Preview (Click to re-run)</label>
+              <div class="preview-box" id="preview-box">
+                <!-- Live <shuffle-text> component will be dynamically inserted here -->
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Custom Element Markup</label>
+              <div class="code-viewer-container">
+                <button class="btn-copy" id="btn-copy-code">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Copy Markup
+                </button>
+                <pre class="code-viewer"><code id="code-output">&lt;shuffle-text&gt;&lt;/shuffle-text&gt;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Hacker Decryptor Minigame -->
+      <section class="glass-panel" id="game">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title share-gradient" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="2" x2="7" y2="22"></line>
+                <line x1="17" y1="2" x2="17" y2="22"></line>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="2" y1="7" x2="7" y2="7"></line>
+                <line x1="2" y1="17" x2="7" y2="17"></line>
+                <line x1="17" y1="17" x2="22" y2="17"></line>
+                <line x1="17" y1="7" x2="22" y2="7"></line>
+              </svg>
+              Module Decryption Minigame
+            </h2>
+            <div class="panel-subtitle">Decrypt the secrets! Unrevealed letters shuffle indefinitely. Guess keys to lock them.</div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-reset-game">Restart Game</button>
+        </div>
+
+        <div class="game-section">
+          <!-- Game HUD metrics -->
+          <div class="game-hud">
+            <div class="hud-item">
+              <span class="hud-label">Category:</span>
+              <span class="hud-value" id="game-category">TERMINOLOGY</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">Firewall integrity:</span>
+              <div class="health-nodes" id="health-nodes">
+                <!-- Nodes represent lives -->
+                <div class="health-node"></div>
+                <div class="health-node"></div>
+                <div class="health-node"></div>
+                <div class="health-node"></div>
+                <div class="health-node"></div>
+                <div class="health-node"></div>
+              </div>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">Score:</span>
+              <span class="hud-value" id="game-score">0000</span>
+            </div>
+          </div>
+
+          <!-- Letters display -->
+          <div class="word-display" id="word-display">
+            <!-- Shuffling letters go here -->
+          </div>
+
+          <!-- Game Result Overlay Panel -->
+          <div class="game-status-overlay" id="game-status-panel">
+            <div class="game-status-title" id="game-status-title">Decryption Successful</div>
+            <div class="game-status-desc" id="game-status-desc">You cracked the passcode and secured the terminal!</div>
+            <button class="btn btn-primary" id="btn-next-word">Decrypt Next Node</button>
+          </div>
+
+          <!-- Keyboard -->
+          <div class="keyboard" id="keyboard">
+            <div class="keyboard-row">
+              <button class="key-btn" data-key="q">q</button>
+              <button class="key-btn" data-key="w">w</button>
+              <button class="key-btn" data-key="e">e</button>
+              <button class="key-btn" data-key="r">r</button>
+              <button class="key-btn" data-key="t">t</button>
+              <button class="key-btn" data-key="y">y</button>
+              <button class="key-btn" data-key="u">u</button>
+              <button class="key-btn" data-key="i">i</button>
+              <button class="key-btn" data-key="o">o</button>
+              <button class="key-btn" data-key="p">p</button>
+            </div>
+            <div class="keyboard-row">
+              <button class="key-btn" data-key="a">a</button>
+              <button class="key-btn" data-key="s">s</button>
+              <button class="key-btn" data-key="d">d</button>
+              <button class="key-btn" data-key="f">f</button>
+              <button class="key-btn" data-key="g">g</button>
+              <button class="key-btn" data-key="h">h</button>
+              <button class="key-btn" data-key="j">j</button>
+              <button class="key-btn" data-key="k">k</button>
+              <button class="key-btn" data-key="l">l</button>
+            </div>
+            <div class="keyboard-row">
+              <button class="key-btn" data-key="z">z</button>
+              <button class="key-btn" data-key="x">x</button>
+              <button class="key-btn" data-key="c">c</button>
+              <button class="key-btn" data-key="v">v</button>
+              <button class="key-btn" data-key="b">b</button>
+              <button class="key-btn" data-key="n">n</button>
+              <button class="key-btn" data-key="m">m</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cybernetic Live Dashboard -->
+      <section class="glass-panel" id="dashboard">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title share-gradient" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"></path>
+                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+              </svg>
+              Cybernetic Live System Dashboard
+            </h2>
+            <div class="panel-subtitle">Simulating terminal data pipelines. Values shuffle to reveal updates. Click to trigger manual sweep.</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Widget 1: CPU Sync -->
+          <div class="dash-card" onclick="sweepWidget(this, 'CPU LOAD')">
+            <div class="dash-header">
+              <span class="dash-label">CPU Core Synchronization</span>
+              <span class="dash-dot" style="background-color: var(--primary); box-shadow: 0 0 8px var(--primary)"></span>
+            </div>
+            <div class="dash-value">
+              <shuffle-text class="dash-shuffle" respect-reduced-motion="false" duration="500" text="LOAD: 48.2% ONLINE"></shuffle-text>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill share-gradient" id="fill-cpu"></div>
+            </div>
+          </div>
+
+          <!-- Widget 2: Shield integrity -->
+          <div class="dash-card" onclick="sweepWidget(this, 'SHIELD')">
+            <div class="dash-header">
+              <span class="dash-label">Security Gateway status</span>
+              <span class="dash-dot" style="background-color: var(--accent-green); box-shadow: 0 0 8px var(--accent-green)"></span>
+            </div>
+            <div class="dash-value">
+              <shuffle-text class="dash-shuffle" respect-reduced-motion="false" duration="500" text="STATUS: 100% SECURED"></shuffle-text>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill share-gradient" id="fill-shield"></div>
+            </div>
+          </div>
+
+          <!-- Widget 3: Memory stream -->
+          <div class="dash-card" onclick="sweepWidget(this, 'HEX')">
+            <div class="dash-header">
+              <span class="dash-label">Data Sentinel encryption key</span>
+              <span class="dash-dot" style="background-color: var(--secondary); box-shadow: 0 0 8px var(--secondary)"></span>
+            </div>
+            <div class="dash-value" style="font-size: 1.15rem">
+              <shuffle-text class="dash-shuffle" respect-reduced-motion="false" duration="550" random-characters="0123456789ABCDEF" text="KEY: 0xF3C9AA20B"></shuffle-text>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill share-gradient" id="fill-hex"></div>
+            </div>
+          </div>
+
+          <!-- Widget 4: Temp warning -->
+          <div class="dash-card" onclick="sweepWidget(this, 'TEMP')">
+            <div class="dash-header">
+              <span class="dash-label">Sirius Core Thermal Grid</span>
+              <span class="dash-dot" id="temp-dot" style="background-color: var(--accent-yellow); box-shadow: 0 0 8px var(--accent-yellow)"></span>
+            </div>
+            <div class="dash-value">
+              <shuffle-text class="dash-shuffle" respect-reduced-motion="false" duration="450" text="TEMP: 32°C OPTIMAL"></shuffle-text>
+            </div>
+            <div class="dash-progress-track">
+              <div class="dash-progress-fill share-gradient" id="fill-temp"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Library features highlight -->
+      <section class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg>
+          </div>
+          <h3 class="feature-title">Native Custom Element</h3>
+          <p class="feature-desc">Register once and use <code>&lt;shuffle-text&gt;</code> anywhere regular HTML is accepted, without framework-specific wrappers.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Attribute-Based API</h3>
+          <p class="feature-desc">Easily adjust overall animation duration and empty characters in CSS/JS or via custom element attributes.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Accessibility Built-In</h3>
+          <p class="feature-desc">Complies with web accessibility standards by injecting hidden assistive text descriptions and respecting system preferences like reduced motion.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2026 Shuffle Component | Made with ❤️ by <a class="share-gradient" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent" href="https://mobiwise.dev" target="_blank">MobiWise</a></p>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+      // ----------------------------------------------------
+      // Initialize ShareGradient (MobiWise Branding)
+      // ----------------------------------------------------
+      const sharedGrad = ShareGradient.createShareGradient()
+        .setAngle(45)
+        .setColors([
+          "oklch(0.514 0.1863 270.26)",
+          "oklch(0.6279 0.2002 330.35)",
+          "oklch(0.8719 0.1243 80.7)",
+          "oklch(0.514 0.1863 270.26)",
+          "oklch(0.6279 0.2002 330.35)",
+          "oklch(0.8719 0.1243 80.7)",
+          "oklch(0.514 0.1863 270.26)",
+          "oklch(0.6279 0.2002 330.35)",
+          "oklch(0.8719 0.1243 80.7)",
+        ])
+        .setCssVariable("--shared-grad")
+        // .setGradientType("linear")
+        .setAnimationMode("swirl")
+        .setFPS(35)
+        .setResolution(0.5)
+        .build();
+
+      sharedGrad.start();
+
+      // ----------------------------------------------------
+      // Background Glow Mouse Move Effect
+      // ----------------------------------------------------
+      const glow1 = document.getElementById("glow1");
+      const glow2 = document.getElementById("glow2");
+
+      document.addEventListener("mousemove", (e) => {
+        const x = e.clientX;
+        const y = e.clientY;
+
+        // Move background glows subtle relative to cursor
+        glow1.style.transform = `translate(${x * 0.05}px, ${y * 0.05}px)`;
+        glow2.style.transform = `translate(${-x * 0.05}px, ${-y * 0.05}px)`;
+      });
+
+      // ----------------------------------------------------
+      // Live Configurator / Playground Logic
+      // ----------------------------------------------------
+      const textInput = document.getElementById("input-text");
+      const durationInput = document.getElementById("input-duration");
+      const charsInput = document.getElementById("input-chars");
+      const emptyInput = document.getElementById("input-empty");
+      const autoplayCheck = document.getElementById("input-autoplay");
+      const hoverCheck = document.getElementById("input-hover");
+      const visibleCheck = document.getElementById("input-visible");
+      const presetButtons = document.querySelectorAll(".preset-btn");
+
+      const valDuration = document.getElementById("val-duration");
+      const previewBox = document.getElementById("preview-box");
+      const codeOutput = document.getElementById("code-output");
+
+      const btnTriggerReveal = document.getElementById("btn-trigger-reveal");
+      const btnCopyCode = document.getElementById("btn-copy-code");
+
+      const presets = {
+        mobiwise: {
+          duration: 900,
+          chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
+          empty: "░",
+          font: "sans",
+        },
+        classic: {
+          duration: 750,
+          chars: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+          empty: "-",
+          font: "sans",
+        },
+        matrix: {
+          duration: 1400,
+          chars: "0123456789$¥%&*#@+=",
+          empty: " ",
+          font: "mono",
+        },
+        cyberpunk: {
+          duration: 600,
+          chars: "!@#$%^&*()_+-=[]{}|;:,.<>?/█▓░",
+          empty: "░",
+          font: "mono",
+        },
+        binary: {
+          duration: 1000,
+          chars: "01",
+          empty: "0",
+          font: "mono",
+        },
+        alien: {
+          duration: 1600,
+          chars: "☠⚡⚠☯⚓⚙⚔✈✉☄★☆☇☈☉☊☋☌☍☠",
+          empty: "*",
+          font: "sans",
+        },
+      };
+
+      let activeFont = "sans";
+
+      function updatePreview() {
+        // Clear previous element
+        previewBox.innerHTML = "";
+
+        const text = textInput.value;
+        const duration = parseInt(durationInput.value, 10);
+        const chars = charsInput.value;
+        const empty = emptyInput.value;
+        const autoplay = autoplayCheck.checked;
+        const hover = hoverCheck.checked;
+        const visible = visibleCheck.checked;
+
+        valDuration.textContent = `${duration}ms`;
+
+        // Create new shuffle-text element
+        const element = document.createElement("shuffle-text");
+        element.setAttribute("text", text);
+        element.setAttribute("duration", duration);
+        element.setAttribute("random-characters", chars);
+        element.setAttribute("empty-character", empty);
+        element.setAttribute("respect-reduced-motion", "false");
+
+        if (autoplay) {
+          element.setAttribute("autoplay", "");
+        }
+        if (hover) {
+          element.setAttribute("replay-on-hover", "");
+        }
+        if (visible) {
+          element.setAttribute("replay-on-visible", "");
+        }
+
+        element.className = "preview-text " + (activeFont === "mono" ? "font-mono-class" : "font-sans-class");
+
+        // Add styling for special presets
+        const activePreset = document.querySelector(".preset-btn.active")?.dataset.preset;
+
+        if (activePreset === "mobiwise") {
+          // MobiWise dynamic gradient reveal
+          element.style.background = "var(--shared-grad) fixed";
+          element.style.backgroundSize = "800%";
+          element.style.animation = "move 30s linear infinite";
+          element.style.webkitBackgroundClip = "text";
+          element.style.webkitTextFillColor = "transparent";
+          element.style.textShadow = "none";
+        } else if (activePreset === "matrix") {
+          // Matrix Green
+          element.style.color = "#10b981";
+          element.style.textShadow = "0 0 10px rgba(16, 185, 129, 0.4)";
+          element.style.background = "";
+          element.style.webkitBackgroundClip = "";
+          element.style.webkitTextFillColor = "";
+        } else if (activePreset === "cyberpunk") {
+          // Cyberpunk Neon Pink
+          element.style.color = "oklch(0.628 0.2 330.36)";
+          element.style.textShadow = "0 0 10px rgba(168, 85, 247, 0.4)";
+          element.style.background = "";
+          element.style.webkitBackgroundClip = "";
+          element.style.webkitTextFillColor = "";
+        } else if (activePreset === "binary") {
+          // Binary Cyan
+          element.style.color = "#00f2fe";
+          element.style.textShadow = "0 0 10px rgba(0, 242, 254, 0.4)";
+          element.style.background = "";
+          element.style.webkitBackgroundClip = "";
+          element.style.webkitTextFillColor = "";
+        } else if (activePreset === "alien") {
+          // Alien Purple
+          element.style.color = "oklch(0.872 0.124 80.69)";
+          element.style.textShadow = "0 0 10px rgba(251, 191, 36, 0.4)";
+          element.style.background = "";
+          element.style.webkitBackgroundClip = "";
+          element.style.webkitTextFillColor = "";
+        } else {
+          element.style.color = "";
+          element.style.textShadow = "";
+          element.style.background = "";
+          element.style.webkitBackgroundClip = "";
+          element.style.webkitTextFillColor = "";
+        }
+
+        // Clicking preview triggers reveal
+        element.addEventListener("click", () => {
+          element.start();
+        });
+
+        previewBox.appendChild(element);
+
+        // Update code output
+        let code = `<shuffle-text`;
+        if (duration !== 600) code += ` duration="${duration}"`;
+        if (chars !== "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890") code += ` random-characters="${chars}"`;
+        if (empty !== "-") code += ` empty-character="${empty}"`;
+        if (autoplay) code += ` autoplay`;
+        if (hover) code += ` replay-on-hover`;
+        if (visible) code += ` replay-on-visible`;
+        code += `>\n  ${text}\n</shuffle-text>`;
+
+        codeOutput.textContent = code;
+      }
+
+      // Add input listeners
+      textInput.addEventListener("input", updatePreview);
+      durationInput.addEventListener("input", updatePreview);
+      charsInput.addEventListener("input", updatePreview);
+      emptyInput.addEventListener("input", updatePreview);
+      autoplayCheck.addEventListener("change", updatePreview);
+      hoverCheck.addEventListener("change", updatePreview);
+      visibleCheck.addEventListener("change", updatePreview);
+
+      // Preset buttons trigger
+      presetButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          presetButtons.forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+
+          const presetData = presets[btn.dataset.preset];
+          durationInput.value = presetData.duration;
+          charsInput.value = presetData.chars;
+          emptyInput.value = presetData.empty;
+          activeFont = presetData.font;
+
+          updatePreview();
+        });
+      });
+
+      btnTriggerReveal.addEventListener("click", () => {
+        const shuffleEl = previewBox.querySelector("shuffle-text");
+        if (shuffleEl) {
+          shuffleEl.start();
+        }
+      });
+
+      // Copy markup code
+      btnCopyCode.addEventListener("click", () => {
+        const textToCopy = codeOutput.textContent;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const originalText = btnCopyCode.innerHTML;
+          btnCopyCode.innerHTML = `✓ Copied!`;
+          btnCopyCode.style.color = "var(--accent-yellow)";
+          setTimeout(() => {
+            btnCopyCode.innerHTML = originalText;
+            btnCopyCode.style.color = "";
+          }, 1800);
+        });
+      });
+
+      // ----------------------------------------------------
+      // "Decipher the Secret Code" Game Logic
+      // ----------------------------------------------------
+      const GAME_WORDS = [
+        { word: "DEVELOPER", category: "PROFESSION", hint: "Someone who builds applications." },
+        { word: "INTERFACE", category: "UI/UX DESIGN", hint: "The point of connection between user and software." },
+        { word: "COMPONENT", category: "WEB DEV", hint: "A modular, reusable part of a webpage." },
+        { word: "SHUFFLE", category: "ANIMATION", hint: "To randomize the order of elements or characters." },
+        { word: "ACCESSIBILITY", category: "BEST PRACTICE", hint: "Creating websites usable by everyone, including assistive tech." },
+        { word: "ALGORITHM", category: "COMPUTING", hint: "A step-by-step set of operations to perform." },
+        { word: "NEONPUNK", category: "AESTHETICS", hint: "A futuristic style defined by glowing lights and tech." },
+        { word: "JAVASCRIPT", category: "PROGRAMMING", hint: "The native scripting language of the web." },
+      ];
+
+      let gameScore = 0;
+      let currentWordData = null;
+      let guessedLetters = new Set();
+      let remainingLives = 6;
+      let wordLettersElements = []; // list of shuffle-text elements
+      let isGameOver = false;
+
+      const categoryDisplay = document.getElementById("game-category");
+      const scoreDisplay = document.getElementById("game-score");
+      const healthNodes = document.getElementById("health-nodes").children;
+      const wordDisplay = document.getElementById("word-display");
+      const keyboardKeys = document.querySelectorAll(".key-btn");
+      const gameStatusPanel = document.getElementById("game-status-panel");
+      const gameStatusTitle = document.getElementById("game-status-title");
+      const gameStatusDesc = document.getElementById("game-status-desc");
+      const btnNextWord = document.getElementById("btn-next-word");
+      const btnResetGame = document.getElementById("btn-reset-game");
+
+      function startNewGame() {
+        isGameOver = false;
+        guessedLetters.clear();
+        remainingLives = 6;
+
+        // Hide overlay panel
+        gameStatusPanel.style.display = "none";
+        gameStatusPanel.className = "game-status-overlay";
+
+        // Reset HUD hearts
+        for (let i = 0; i < healthNodes.length; i++) {
+          healthNodes[i].classList.remove("lost");
+        }
+
+        // Reset keyboard buttons status
+        keyboardKeys.forEach((key) => {
+          key.className = "key-btn";
+        });
+
+        // Choose random word
+        const prevWord = currentWordData;
+        do {
+          currentWordData = GAME_WORDS[Math.floor(Math.random() * GAME_WORDS.length)];
+        } while (GAME_WORDS.length > 1 && prevWord && currentWordData.word === prevWord.word);
+
+        categoryDisplay.textContent = currentWordData.category;
+
+        // Build letter slots
+        wordDisplay.innerHTML = "";
+        wordLettersElements = [];
+
+        const word = currentWordData.word;
+        for (let i = 0; i < word.length; i++) {
+          const letter = word[i];
+          const slot = document.createElement("div");
+          slot.className = "letter-slot shuffling";
+
+          const shuffleEl = document.createElement("shuffle-text");
+          shuffleEl.setAttribute("text", letter);
+          shuffleEl.setAttribute("duration", "400"); // short loops
+          shuffleEl.setAttribute("random-characters", "0123456789!@#$%&*");
+          shuffleEl.setAttribute("empty-character", "░");
+          shuffleEl.setAttribute("respect-reduced-motion", "false");
+
+          // Looping event: when shuffle ends, if not guessed, shuffle again!
+          shuffleEl.addEventListener("shuffle-text-complete", () => {
+            if (!shuffleEl.dataset.guessed && !isGameOver) {
+              // Add a small delay to make it smooth, then re-shuffle
+              setTimeout(() => {
+                if (!shuffleEl.dataset.guessed && !isGameOver) {
+                  shuffleEl.start();
+                }
+              }, 100);
+            }
+          });
+
+          slot.appendChild(shuffleEl);
+          wordDisplay.appendChild(slot);
+
+          wordLettersElements.push({
+            letter: letter,
+            element: shuffleEl,
+            slot: slot,
+          });
+
+          // Start the initial shuffle
+          shuffleEl.start();
+        }
+      }
+
+      function handleGuess(letter) {
+        if (isGameOver || guessedLetters.has(letter)) return;
+
+        guessedLetters.add(letter);
+
+        // Find key button to update UI
+        const keyBtn = document.querySelector(`.key-btn[data-key="${letter.toLowerCase()}"]`);
+
+        const isCorrect = currentWordData.word.includes(letter);
+
+        if (isCorrect) {
+          if (keyBtn) keyBtn.classList.add("correct");
+
+          // Reveal correctly guessed letters
+          wordLettersElements.forEach((item) => {
+            if (item.letter === letter) {
+              item.element.dataset.guessed = "true";
+              item.element.stop();
+              item.element.textContent = letter;
+              item.slot.className = "letter-slot guessed";
+            }
+          });
+
+          // Check Win Condition
+          const allGuessed = wordLettersElements.every((item) => item.element.dataset.guessed === "true");
+          if (allGuessed) {
+            handleGameWin();
+          }
+        } else {
+          if (keyBtn) keyBtn.classList.add("wrong");
+
+          // Deduct life
+          remainingLives--;
+          if (remainingLives >= 0 && remainingLives < 6) {
+            healthNodes[remainingLives].classList.add("lost");
+          }
+
+          // Check Lose Condition
+          if (remainingLives <= 0) {
+            handleGameLose();
+          }
+        }
+      }
+
+      function handleGameWin() {
+        isGameOver = true;
+        gameScore += 100 + remainingLives * 25;
+        scoreDisplay.textContent = String(gameScore).padStart(4, "0");
+
+        // Show Success Panel
+        gameStatusPanel.style.display = "flex";
+        gameStatusPanel.classList.add("success");
+        gameStatusTitle.textContent = "Decryption Completed";
+        gameStatusDesc.innerHTML = `Excellent work. Node cleared successfully. <br>Earned <span class="highlight-word">+${100 + remainingLives * 25} points</span>. Clue: <em>"${currentWordData.hint}"</em>`;
+        btnNextWord.style.display = "inline-block";
+        btnNextWord.textContent = "Decrypt Next Node";
+      }
+
+      function handleGameLose() {
+        isGameOver = true;
+
+        // Stop all elements and show the correct word
+        wordLettersElements.forEach((item) => {
+          item.element.dataset.guessed = "true";
+          item.element.stop();
+          item.element.textContent = item.letter;
+          item.slot.className = "letter-slot";
+          item.slot.style.borderColor = "oklch(0.628 0.2 330.36)";
+          item.slot.style.color = "oklch(0.628 0.2 330.36)";
+        });
+
+        // Show Failure Panel
+        gameStatusPanel.style.display = "flex";
+        gameStatusPanel.classList.add("failure");
+        gameStatusTitle.textContent = "Firewall Lockdown";
+        gameStatusDesc.innerHTML = `Decryption failed. The correct keycode was <span class="highlight-word">${currentWordData.word}</span>. <br>Firewall integrity compromised. Clue was: <em>"${currentWordData.hint}"</em>`;
+        btnNextWord.style.display = "inline-block";
+        btnNextWord.textContent = "Reboot Module";
+      }
+
+      // Keyboard listeners
+      document.addEventListener("keydown", (e) => {
+        // Only trigger if focus is not in form fields
+        if (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA") {
+          return;
+        }
+
+        const key = e.key.toUpperCase();
+        if (/^[A-Z]$/.test(key)) {
+          handleGuess(key);
+        }
+      });
+
+      // UI Keyboard clicks
+      keyboardKeys.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const key = btn.dataset.key.toUpperCase();
+          handleGuess(key);
+        });
+      });
+
+      btnNextWord.addEventListener("click", startNewGame);
+      btnResetGame.addEventListener("click", () => {
+        gameScore = 0;
+        scoreDisplay.textContent = "0000";
+        startNewGame();
+      });
+
+      // ----------------------------------------------------
+      // Cybernetic Dashboard Simulation
+      // ----------------------------------------------------
+      const fillCpu = document.getElementById("fill-cpu");
+      const fillShield = document.getElementById("fill-shield");
+      const fillHex = document.getElementById("fill-hex");
+      const fillTemp = document.getElementById("fill-temp");
+      const tempDot = document.getElementById("temp-dot");
+
+      const statsProgress = {
+        cpu: { fillEl: fillCpu, val: 0, speed: 1.5, type: "CPU" },
+        shield: { fillEl: fillShield, val: 0, speed: 0.8, type: "SHIELD" },
+        hex: { fillEl: fillHex, val: 0, speed: 2.2, type: "HEX" },
+        temp: { fillEl: fillTemp, val: 0, speed: 1.1, type: "TEMP" },
+      };
+
+      function updateDashboardBars() {
+        for (const key in statsProgress) {
+          const stat = statsProgress[key];
+          if (stat.val >= 100) {
+            stat.val = 0;
+            // Trigger shuffle-text update for this card
+            const card = stat.fillEl.closest(".dash-card");
+            const shuffleTextEl = card.querySelector("shuffle-text");
+            triggerShuffleUpdate(shuffleTextEl, stat.type);
+          } else {
+            stat.val += stat.speed;
+          }
+          stat.fillEl.style.width = `${stat.val}%`;
+        }
+        requestAnimationFrame(updateDashboardBars);
+      }
+
+      function triggerShuffleUpdate(el, type) {
+        if (!el || el.isRunning) return;
+
+        let newText = "";
+        if (type === "CPU") {
+          const load = (Math.random() * 60 + 30).toFixed(1);
+          newText = `LOAD: ${load}% ${load > 85 ? "OVERLOAD" : "ONLINE"}`;
+          el.closest(".dash-card").querySelector(".dash-dot").style.backgroundColor = load > 85 ? "oklch(0.628 0.2 330.36)" : "var(--primary)";
+          el.closest(".dash-card").querySelector(".dash-dot").style.boxShadow = load > 85 ? "0 0 8px oklch(0.628 0.2 330.36)" : "0 0 8px var(--primary)";
+        } else if (type === "SHIELD") {
+          const statuses = ["STATUS: 100% SECURED", "STATUS: SWEEPING CORE", "STATUS: ACC-CLEARED", "STATUS: SHIELD OPTIMAL"];
+          newText = statuses[Math.floor(Math.random() * statuses.length)];
+        } else if (type === "HEX") {
+          const hexVals = ["F3C9AA20B", "00D2EF762", "BC95A01EE", "7E68BA992", "4A1EBCFF8"];
+          newText = `KEY: 0x${hexVals[Math.floor(Math.random() * hexVals.length)]}`;
+        } else if (type === "TEMP") {
+          const temp = Math.floor(Math.random() * 50 + 20);
+          newText = `TEMP: ${temp}°C ${temp > 55 ? "WARNING" : "OPTIMAL"}`;
+
+          // change indicator dot color
+          if (temp > 55) {
+            tempDot.style.backgroundColor = "oklch(0.628 0.2 330.36)";
+            tempDot.style.boxShadow = "0 0 8px oklch(0.628 0.2 330.36)";
+          } else if (temp > 40) {
+            tempDot.style.backgroundColor = "var(--accent-yellow)";
+            tempDot.style.boxShadow = "0 0 8px var(--accent-yellow)";
+          } else {
+            tempDot.style.backgroundColor = "var(--accent-green)";
+            tempDot.style.boxShadow = "0 0 8px var(--accent-green)";
+          }
+        }
+
+        el.setAttribute("text", newText);
+        el.start();
+      }
+
+      // Sweep widget manually on click
+      function sweepWidget(card, type) {
+        const el = card.querySelector("shuffle-text");
+        triggerShuffleUpdate(el, type);
+        // Reset progress bar value on click
+        const fillKey = Object.keys(statsProgress).find((k) => statsProgress[k].fillEl.closest(".dash-card") === card);
+        if (fillKey) {
+          statsProgress[fillKey].val = 0;
+        }
+      }
+
+      // Click logo or hero shuffle to replay main elements
+      const heroShuffle = document.getElementById("hero-shuffle");
+      heroShuffle.addEventListener("click", () => heroShuffle.start());
+
+      // ----------------------------------------------------
+      // Init Everything
+      // ----------------------------------------------------
+      updatePreview();
+      startNewGame();
+      // Start loop for progress bars after short delay
+      setTimeout(() => {
+        requestAnimationFrame(updateDashboardBars);
+      }, 1000);
+    </script>
+  </body>
+</html>
